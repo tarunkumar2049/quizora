@@ -1,0 +1,213 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics | Quizora{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+        <span class="badge text-bg-dark mb-2">Admin Analytics</span>
+        <h1 class="h3 mb-1">Charts and Analytics</h1>
+        <p class="text-muted mb-0">Track quiz performance, attempt trends, and student outcomes.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.admin_dashboard') }}">Dashboard</a>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Total Attempts</p>
+                <h2 class="h3 mb-0">{{ analytics.summary.total_attempts }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Average Accuracy</p>
+                <h2 class="h3 mb-0">{{ analytics.summary.average_accuracy }}%</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Correct Answers</p>
+                <h2 class="h3 mb-0">{{ analytics.summary.total_correct }}</h2>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Questions Answered</p>
+                <h2 class="h3 mb-0">{{ analytics.summary.total_questions }}</h2>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if analytics.summary.total_attempts == 0 %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center p-5">
+            <h2 class="h5 mb-2">No analytics data yet</h2>
+            <p class="text-muted mb-4">Charts will appear after students submit quiz attempts.</p>
+            <a class="btn btn-primary" href="{{ url_for('quiz.admin_quizzes') }}">Manage Quizzes</a>
+        </div>
+    </div>
+{% else %}
+    <div class="row g-4 mb-4">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Attempt Trend</h2>
+                    <p class="text-muted small mb-0">Daily attempts with average accuracy.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="analytics-chart-box">
+                        <canvas id="attemptTrendChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Correct vs Incorrect</h2>
+                    <p class="text-muted small mb-0">All submitted answers.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="analytics-chart-box">
+                        <canvas id="adminCorrectPieChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Quiz Accuracy</h2>
+                    <p class="text-muted small mb-0">Average accuracy by quiz.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="analytics-chart-box">
+                        <canvas id="quizAccuracyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Subject Accuracy</h2>
+                    <p class="text-muted small mb-0">Average accuracy by subject.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="analytics-chart-box">
+                        <canvas id="subjectAccuracyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-5">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Difficulty Accuracy</h2>
+                    <p class="text-muted small mb-0">Accuracy across Easy, Medium, and Hard questions.</p>
+                </div>
+                <div class="card-body p-4">
+                    <div class="analytics-chart-box">
+                        <canvas id="difficultyAccuracyChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white border-0 pt-4 px-4">
+                    <h2 class="h5 mb-1">Student Leaderboard</h2>
+                    <p class="text-muted small mb-0">Top students by average accuracy.</p>
+                </div>
+                <div class="card-body p-4">
+                    {% if analytics.student_leaderboard %}
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead>
+                                    <tr>
+                                        <th>Student</th>
+                                        <th>Attempts</th>
+                                        <th>Best Score</th>
+                                        <th>Avg Accuracy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for student in analytics.student_leaderboard %}
+                                        <tr>
+                                            <td class="fw-semibold">{{ student.student_name }}</td>
+                                            <td>{{ student.attempts }}</td>
+                                            <td>{{ student.best_score }}</td>
+                                            <td>{{ student.average_accuracy }}%</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted mb-0">No student attempts yet.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+        <div class="card-header bg-white border-0 pt-4 px-4">
+            <h2 class="h5 mb-1">Quiz Performance Table</h2>
+            <p class="text-muted small mb-0">Attempts and average accuracy for each quiz.</p>
+        </div>
+        <div class="card-body p-4">
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Quiz</th>
+                            <th>Subject</th>
+                            <th>Attempts</th>
+                            <th>Average Accuracy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in analytics.quiz_performance %}
+                            <tr>
+                                <td class="fw-semibold">{{ quiz.title }}</td>
+                                <td>{{ quiz.subject }}</td>
+                                <td>{{ quiz.attempts }}</td>
+                                <td>{{ quiz.average_accuracy|round(2) }}%</td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if analytics.summary.total_attempts > 0 %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const analyticsChartData = {{ analytics.chart_data|tojson }};
+</script>
+<script src="{{ url_for('static', filename='js/admin_analytics_charts.js') }}"></script>
+{% endif %}
+{% endblock %}

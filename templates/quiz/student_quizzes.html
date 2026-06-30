@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block title %}Available Quizzes | Quizora{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+        <span class="badge text-bg-success mb-2">Student</span>
+        <h1 class="h3 mb-1">Available Quizzes</h1>
+        <p class="text-muted mb-0">Choose an active quiz and submit before the timer ends.</p>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.student_dashboard') }}">Dashboard</a>
+</div>
+
+{% if quizzes %}
+    <div class="row g-4">
+        {% for quiz in quizzes %}
+            <div class="col-md-6 col-xl-4">
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body p-4 d-flex flex-column">
+                        <span class="badge text-bg-light border align-self-start mb-3">{{ quiz.subject }}</span>
+                        <h2 class="h5 mb-2">{{ quiz.title }}</h2>
+                        <p class="text-muted small mb-4">{{ quiz.question_count }} questions · {{ quiz.duration_min }} minutes</p>
+                        <a class="btn btn-primary mt-auto {% if quiz.question_count == 0 %}disabled{% endif %}" href="{{ url_for('quiz.attempt_quiz', quiz_id=quiz.quiz_id) }}">
+                            Start Quiz
+                        </a>
+                    </div>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body text-center p-5">
+            <h2 class="h5 mb-2">No quizzes available</h2>
+            <p class="text-muted mb-0">Active quizzes will appear here when an admin publishes them.</p>
+        </div>
+    </div>
+{% endif %}
+{% endblock %}

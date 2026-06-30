@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+
+{% block title %}Manage Quizzes | Quizora{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+        <span class="badge text-bg-dark mb-2">Admin</span>
+        <h1 class="h3 mb-1">Manage Quizzes</h1>
+        <p class="text-muted mb-0">Create, edit, and organize quizzes for students.</p>
+    </div>
+    <a class="btn btn-primary" href="{{ url_for('quiz.create_quiz_view') }}">Create Quiz</a>
+</div>
+
+<div class="card border-0 shadow-sm">
+    <div class="card-body p-4">
+        {% if quizzes %}
+            <div class="table-responsive">
+                <table class="table align-middle">
+                    <thead>
+                        <tr>
+                            <th>Quiz</th>
+                            <th>Subject</th>
+                            <th>Duration</th>
+                            <th>Questions</th>
+                            <th>Status</th>
+                            <th>Created By</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in quizzes %}
+                            <tr>
+                                <td class="fw-semibold">{{ quiz.title }}</td>
+                                <td>{{ quiz.subject }}</td>
+                                <td>{{ quiz.duration_min }} min</td>
+                                <td>{{ quiz.question_count }}</td>
+                                <td>
+                                    {% if quiz.status == "active" %}
+                                        <span class="badge text-bg-success">Active</span>
+                                    {% else %}
+                                        <span class="badge text-bg-secondary">Inactive</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ quiz.created_by_name }}</td>
+                                <td class="text-end">
+                                    <div class="d-flex flex-wrap justify-content-end gap-2">
+                                        <a class="btn btn-sm btn-outline-primary" href="{{ url_for('quiz.manage_questions', quiz_id=quiz.quiz_id) }}">Questions</a>
+                                        <a class="btn btn-sm btn-outline-secondary" href="{{ url_for('quiz.edit_quiz_view', quiz_id=quiz.quiz_id) }}">Edit</a>
+                                        <form action="{{ url_for('quiz.delete_quiz_view', quiz_id=quiz.quiz_id) }}" method="POST" onsubmit="return confirm('Delete this quiz?');">
+                                            <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="text-center py-5">
+                <h2 class="h5 mb-2">No quizzes yet</h2>
+                <p class="text-muted mb-4">Create the first quiz to begin adding questions.</p>
+                <a class="btn btn-primary" href="{{ url_for('quiz.create_quiz_view') }}">Create Quiz</a>
+            </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,194 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard | Quizora{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+        <span class="badge text-bg-dark mb-2">Admin</span>
+        <h1 class="h3 mb-1">Welcome, {{ current_user.name }}</h1>
+        <p class="text-muted mb-0">Monitor users, quizzes, questions, and quiz performance.</p>
+    </div>
+    <div class="d-flex gap-2">
+        <a class="btn btn-primary" href="{{ url_for('quiz.create_quiz_view') }}">Create Quiz</a>
+        <a class="btn btn-outline-primary" href="{{ url_for('analytics.admin_analytics') }}">Analytics</a>
+        <a class="btn btn-outline-secondary" href="{{ url_for('quiz.admin_quizzes') }}">Manage Quizzes</a>
+    </div>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Total Users</p>
+                <h2 class="h3 mb-0">{{ data.summary.total_users }}</h2>
+                <span class="small text-muted">{{ data.summary.total_students }} students, {{ data.summary.total_admins }} admins</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Total Quizzes</p>
+                <h2 class="h3 mb-0">{{ data.summary.total_quizzes }}</h2>
+                <span class="small text-muted">{{ data.summary.active_quizzes }} active</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Questions</p>
+                <h2 class="h3 mb-0">{{ data.summary.total_questions }}</h2>
+                <span class="small text-muted">Across all quizzes</span>
+            </div>
+        </div>
+    </div>
+    <div class="col-sm-6 col-xl-3">
+        <div class="card dashboard-stat-card border-0 shadow-sm h-100">
+            <div class="card-body p-4">
+                <p class="text-muted small mb-1">Avg Accuracy</p>
+                <h2 class="h3 mb-0">{{ data.summary.average_accuracy }}%</h2>
+                <span class="small text-muted">{{ data.summary.total_attempts }} total attempts</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h2 class="h5 mb-1">Recent Quizzes</h2>
+                <p class="text-muted small mb-0">Latest quizzes created in the system.</p>
+            </div>
+            <div class="card-body p-4">
+                {% if data.recent_quizzes %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Quiz</th>
+                                    <th>Subject</th>
+                                    <th>Duration</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in data.recent_quizzes %}
+                                    <tr>
+                                        <td class="fw-semibold">{{ quiz.title }}</td>
+                                        <td>{{ quiz.subject }}</td>
+                                        <td>{{ quiz.duration_min }} min</td>
+                                        <td>
+                                            {% if quiz.status == "active" %}
+                                                <span class="badge text-bg-success">Active</span>
+                                            {% else %}
+                                                <span class="badge text-bg-secondary">Inactive</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <h3 class="h6 mb-2">No quizzes yet</h3>
+                        <p class="text-muted mb-0">Quiz records will appear here after they are created.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h2 class="h5 mb-1">Recent Users</h2>
+                <p class="text-muted small mb-0">Newest registered accounts.</p>
+            </div>
+            <div class="card-body p-4">
+                {% if data.recent_users %}
+                    <div class="list-group list-group-flush">
+                        {% for user in data.recent_users %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between gap-3">
+                                    <div>
+                                        <p class="fw-semibold mb-0">{{ user.name }}</p>
+                                        <p class="small text-muted mb-0">{{ user.email }}</p>
+                                    </div>
+                                    <span class="badge text-bg-light border align-self-start">{{ user.role|title }}</span>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <h3 class="h6 mb-2">No users yet</h3>
+                        <p class="text-muted mb-0">New registrations will appear here.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h2 class="h5 mb-1">Recent Results</h2>
+                <p class="text-muted small mb-0">Latest student quiz submissions.</p>
+            </div>
+            <div class="card-body p-4">
+                {% if data.recent_results %}
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Quiz</th>
+                                    <th>Score</th>
+                                    <th>Accuracy</th>
+                                    <th>Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for result in data.recent_results %}
+                                    <tr>
+                                        <td class="fw-semibold">{{ result.student_name }}</td>
+                                        <td>{{ result.quiz_title }}</td>
+                                        <td>{{ result.score }}</td>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <div class="progress flex-grow-1 dashboard-progress">
+                                                    <div
+                                                        class="progress-bar"
+                                                        role="progressbar"
+                                                        style="width: {{ result.accuracy }}%;"
+                                                        aria-valuenow="{{ result.accuracy }}"
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100"
+                                                    ></div>
+                                                </div>
+                                                <span class="small text-muted">{{ result.accuracy }}%</span>
+                                            </div>
+                                        </td>
+                                        <td>{{ result.date.strftime("%d %b %Y") }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <h3 class="h6 mb-2">No results yet</h3>
+                        <p class="text-muted mb-0">Student attempts will appear here after quizzes are submitted.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

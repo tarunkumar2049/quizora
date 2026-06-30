@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if mode == "edit" %}Edit Quiz{% else %}Create Quiz{% endif %} | Quizora
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="badge text-bg-dark mb-2">Admin</span>
+                <h1 class="h3 mb-1">{% if mode == "edit" %}Edit Quiz{% else %}Create Quiz{% endif %}</h1>
+                <p class="text-muted mb-0">Set the quiz title, subject, duration, and availability.</p>
+            </div>
+            <a class="btn btn-outline-secondary" href="{{ url_for('quiz.admin_quizzes') }}">Back</a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label" for="title">Quiz Title</label>
+                        <input class="form-control" id="title" name="title" value="{{ quiz.get('title', '') }}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="subject">Subject</label>
+                        <input class="form-control" id="subject" name="subject" value="{{ quiz.get('subject', '') }}" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="duration_min">Duration in Minutes</label>
+                            <input class="form-control" id="duration_min" name="duration_min" type="number" min="1" value="{{ quiz.get('duration_min', '') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="status">Status</label>
+                            <select class="form-select" id="status" name="status">
+                                <option value="active" {% if quiz.get('status', 'active') == 'active' %}selected{% endif %}>Active</option>
+                                <option value="inactive" {% if quiz.get('status') == 'inactive' %}selected{% endif %}>Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a class="btn btn-outline-secondary" href="{{ url_for('quiz.admin_quizzes') }}">Cancel</a>
+                        <button class="btn btn-primary" type="submit">
+                            {% if mode == "edit" %}Update Quiz{% else %}Create Quiz{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

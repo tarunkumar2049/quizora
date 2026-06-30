@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Quiz Result | Quizora{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-5 text-center">
+                <span class="badge text-bg-success mb-3">Result</span>
+                <h1 class="h3 mb-2">{{ result.title }}</h1>
+                <p class="text-muted mb-4">{{ result.subject }} - Submitted on {{ result.date.strftime("%d %b %Y") }}</p>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <p class="text-muted small mb-1">Score</p>
+                            <h2 class="h4 mb-0">{{ result.score }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <p class="text-muted small mb-1">Correct</p>
+                            <h2 class="h4 mb-0">{{ result.correct_answers }}/{{ result.total_questions }}</h2>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="border rounded p-3">
+                            <p class="text-muted small mb-1">Accuracy</p>
+                            <h2 class="h4 mb-0">{{ result.accuracy }}%</h2>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="progress mb-4 result-progress">
+                    <div
+                        class="progress-bar"
+                        role="progressbar"
+                        style="width: {{ result.accuracy }}%;"
+                        aria-valuenow="{{ result.accuracy }}"
+                        aria-valuemin="0"
+                        aria-valuemax="100"
+                    ></div>
+                </div>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="alert alert-success mb-0">
+                            Correct answers: <strong>{{ result.correct_answers }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="alert alert-danger mb-0">
+                            Incorrect or unanswered: <strong>{{ result.incorrect_answers }}</strong>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="d-flex justify-content-center gap-2">
+                    <a class="btn btn-primary" href="{{ url_for('quiz.student_quizzes') }}">Attempt More Quizzes</a>
+                    <a class="btn btn-outline-secondary" href="{{ url_for('dashboard.student_dashboard') }}">Dashboard</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row justify-content-center mt-4">
+    <div class="col-lg-10">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-white border-0 pt-4 px-4">
+                <h2 class="h5 mb-1">Answer Review</h2>
+                <p class="text-muted small mb-0">Review how each question was calculated.</p>
+            </div>
+            <div class="card-body p-4">
+                {% for answer in answers %}
+                    <div class="result-answer-item {% if not loop.last %}mb-4 pb-4 border-bottom{% endif %}">
+                        <div class="d-flex flex-wrap gap-2 mb-2">
+                            <span class="badge text-bg-light border">{{ answer.category }}</span>
+                            <span class="badge text-bg-info">{{ answer.difficulty }}</span>
+                            {% if answer.is_correct %}
+                                <span class="badge text-bg-success">Correct</span>
+                            {% else %}
+                                <span class="badge text-bg-danger">Incorrect</span>
+                            {% endif %}
+                        </div>
+
+                        <h3 class="h6 mb-3">{{ loop.index }}. {{ answer.question_text }}</h3>
+
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100">
+                                    <p class="text-muted small mb-1">Your Answer</p>
+                                    <p class="mb-0">
+                                        {% if answer.selected_answer %}
+                                            {{ answer.selected_answer }}
+                                        {% else %}
+                                            <span class="text-muted">Not answered</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="border rounded p-3 h-100 correct-option">
+                                    <p class="text-muted small mb-1">Correct Answer</p>
+                                    <p class="mb-0">{{ answer.correct_answer }}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if answer.explanation %}
+                            <div class="alert alert-light border mt-3 mb-0">
+                                <strong>Explanation:</strong> {{ answer.explanation }}
+                            </div>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

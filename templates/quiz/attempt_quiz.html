@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block title %}Attempt Quiz | Quizora{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+    <div>
+        <span class="badge text-bg-primary mb-2">{{ quiz.subject }}</span>
+        <h1 class="h3 mb-1">{{ quiz.title }}</h1>
+        <p class="text-muted mb-0">{{ questions|length }} questions · {{ quiz.duration_min }} minutes</p>
+    </div>
+    <div class="timer-box text-center">
+        <span class="small text-muted d-block">Time Left</span>
+        <span id="quizTimer" class="h4 mb-0" data-duration="{{ quiz.duration_min }}">{{ quiz.duration_min }}:00</span>
+    </div>
+</div>
+
+<form id="quizAttemptForm" method="POST">
+    {% for question in questions %}
+        <div class="card border-0 shadow-sm mb-3">
+            <div class="card-body p-4">
+                <div class="d-flex flex-wrap gap-2 mb-2">
+                    <span class="badge text-bg-light border">{{ question.category }}</span>
+                    <span class="badge text-bg-info">{{ question.difficulty }}</span>
+                </div>
+                <h2 class="h5 mb-3">{{ loop.index }}. {{ question.question_text }}</h2>
+
+                <div class="row g-2">
+                    {% for option in question.options %}
+                        <div class="col-md-6">
+                            <label class="quiz-option w-100">
+                                <input class="form-check-input me-2" type="radio" name="question_{{ question.question_id }}" value="{{ option.option_id }}">
+                                <span>{{ option.option_text }}</span>
+                            </label>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <div class="d-flex justify-content-end gap-2">
+        <a class="btn btn-outline-secondary" href="{{ url_for('quiz.student_quizzes') }}">Cancel</a>
+        <button class="btn btn-primary" type="submit">Submit Quiz</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/quiz_timer.js') }}"></script>
+{% endblock %}

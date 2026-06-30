@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if mode == "edit" %}Edit Question{% else %}Add Question{% endif %} | Quizora
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-9">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <span class="badge text-bg-dark mb-2">{{ quiz.title }}</span>
+                <h1 class="h3 mb-1">{% if mode == "edit" %}Edit Question{% else %}Add Question{% endif %}</h1>
+                <p class="text-muted mb-0">Each question must have four options and one correct answer.</p>
+            </div>
+            <a class="btn btn-outline-secondary" href="{{ url_for('quiz.manage_questions', quiz_id=quiz.quiz_id) }}">Back</a>
+        </div>
+
+        <div class="card border-0 shadow-sm">
+            <div class="card-body p-4">
+                <form method="POST">
+                    <div class="mb-3">
+                        <label class="form-label" for="question_text">Question Text</label>
+                        <textarea class="form-control" id="question_text" name="question_text" rows="3" required>{{ question.get('question_text', '') }}</textarea>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="category">Topic / Category</label>
+                            <input class="form-control" id="category" name="category" value="{{ question.get('category', '') }}" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label" for="difficulty">Difficulty</label>
+                            <select class="form-select" id="difficulty" name="difficulty">
+                                {% for difficulty in ["Easy", "Medium", "Hard"] %}
+                                    <option value="{{ difficulty }}" {% if question.get('difficulty', 'Easy') == difficulty %}selected{% endif %}>{{ difficulty }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label" for="explanation">Explanation</label>
+                        <textarea class="form-control" id="explanation" name="explanation" rows="2">{{ question.get('explanation', '') }}</textarea>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Options</label>
+                        {% if mode == "edit" %}
+                            {% for option in question.options %}
+                                <div class="input-group mb-2">
+                                    <div class="input-group-text">
+                                        <input class="form-check-input mt-0" type="radio" name="correct_option" value="{{ option.option_id }}" {% if option.is_correct %}checked{% endif %} required>
+                                    </div>
+                                    <input type="hidden" name="option_id" value="{{ option.option_id }}">
+                                    <input class="form-control" name="option_text" value="{{ option.option_text }}" required>
+                                </div>
+                            {% endfor %}
+                        {% else %}
+                            {% for index in range(4) %}
+                                <div class="input-group mb-2">
+                                    <div class="input-group-text">
+                                        <input class="form-check-input mt-0" type="radio" name="correct_option" value="{{ index }}" {% if index == 0 %}checked{% endif %} required>
+                                    </div>
+                                    <input class="form-control" name="option_{{ index + 1 }}" value="{{ question.get('option_' ~ (index + 1), '') }}" placeholder="Option {{ index + 1 }}" required>
+                                </div>
+                            {% endfor %}
+                        {% endif %}
+                        <div class="form-text">Select the radio button beside the correct option.</div>
+                    </div>
+
+                    <div class="d-flex justify-content-end gap-2">
+                        <a class="btn btn-outline-secondary" href="{{ url_for('quiz.manage_questions', quiz_id=quiz.quiz_id) }}">Cancel</a>
+                        <button class="btn btn-primary" type="submit">
+                            {% if mode == "edit" %}Update Question{% else %}Add Question{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
